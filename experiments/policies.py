@@ -2,7 +2,7 @@ import re
 
 from typing import Tuple
 
-from .utils import ACTION_PARSER_MAP, PROMPT_MAP, CompletionGPT, ChatGPT, PalmChat, PalmCompletion, HFChat
+from .utils import ACTION_PARSER_MAP, PROMPT_MAP, CompletionGPT, ChatGPT, PalmChat, PalmCompletion, HFChat, OllamaChat
 
 class BasePolicy:
     def __init__(self):
@@ -19,6 +19,48 @@ class HumanPolicy(BasePolicy):
         action = input('> ')
         return action
     
+class OllamaPolicy(BasePolicy):
+    def __init__(self, language: str, setting: str, template: str, dialogue_limit: int = None, model: str = "wrn", response_limit: int = 1000):
+        super().__init__()
+        self.language = language.upper()
+        self.setting = setting
+        self.dialogue_limit = dialogue_limit
+        self.template = PROMPT_MAP[template](self.language, self.setting)
+        self.action_parser = ACTION_PARSER_MAP[language]
+        self.model = model
+        self.response_limit = response_limit
+    
+    def reset(self):
+        self.dialogue = [{"role": "system", "content": self.template.get_init_msg()}]
+
+    def add_to_dialogue(self, handicap: str):
+        self.dialogue.append({"role": "system", "content": handicap})
+
+    def forward(self, query, observation, reward, available_actions) -> Tuple[str, bool]:
+        # Append response to dialogue
+        if self.dialogue[-1]["role"] == "system":
+            # First Turn
+            self.dialogue.append({"role": "user", "content": self.template.get_query_msg(query)})
+        else:
+            # Limit observation size due to context window thresholds for API call
+            if isinstance(observation, str) and len(observation) > self.response_limit:
+                observation = observation[:self.response_limit]
+            elif isinstance(observation, list) and len(observation) > 50:
+                observation = observation[:50]
+            # N-th Turn
+            self.dialogue.append({"role": "user", "content": self.template.get_obs_msg(observation, reward)})
+            # Only keep {self.dialogue_limit} most recent messages
+            if self.dialogue_limit and len(self.dialogue) - 2 > self.dialogue_limit:
+                self.dialogue = self.dialogue[:2] + self.dialogue[-self.dialogue_limit:]
+
+        # Retrieve Action from ChatGPT
+        actions = OllamaChat(self.dialogue, model=self.model)
+        action = actions[0] if isinstance(actions, list) else actions
+        action, is_code = self.action_parser(action)
+        self.dialogue.append({"role": "assistant", "content": action})
+        return action, is_code
+
+
 class CompletionGPTPolicy(BasePolicy):
     def __init__(self, language: str, setting: str, template: str, dialogue_limit: int = None, model: str = "text-davinci-003", response_limit: int = 500):
         super().__init__()

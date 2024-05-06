@@ -3,7 +3,7 @@ from intercode.envs import CTFEnv
 from intercode.utils import IntercodeDataLoader
 from tqdm import tqdm
 from typing import Dict
-from experiments.policies import ChatGPTPolicy
+from experiments.policies import OllamaPolicy
 
 
 parser = argparse.ArgumentParser(description='GPT evaluation for CTF environment')
@@ -27,7 +27,7 @@ if __name__ == '__main__':
             task = data.get(idx)
             # Each task uses its own CTFEnv instance
             env = CTFEnv(f"ctf_task_{idx}", task, traj_dir="logs/ctf/", verbose=True)
-            policy = ChatGPTPolicy(language="ctf", setting="Bourne Shell",
+            policy = OllamaPolicy(language="ctf", setting="Bourne Shell",
                 template="ctf", dialogue_limit=args.dialogue_limit, model="gpt-4")
             policy.reset()
             turn_history = {"actions": [], "observations": [], "rewards": []}

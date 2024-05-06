@@ -9,6 +9,9 @@ from .prompts import (
     TemplatePlanSolve,
     PROMPT_MAP
 )
+from .ollama_api import(
+    OllamaChat
+)
 from .gpt_api import (
     CompletionGPT,
     ChatGPT

@@ -23,7 +23,6 @@ DEMO_MAP = {
     "python": {"env": PythonEnv, "image_name": "intercode-python", "data_path": "./data/python/mbpp/ic_mbpp.json"},
     "sql": {"env": SqlEnv, "image_name": "docker-env-sql", "data_path": "./data/sql/bird/ic_bird.json", "preprocess": preprocess_sql},
     "ctf": {"env": CTFEnv, "image_name": "intercode-ctf", "data_path": "./data/ctf/ic_ctf.json", "preprocess": preprocess_ctf},
-    "swe": {"env": SWEEnv, "image_name": "intercode-swe", "data_path": "./data/swe-bench/ic_swe_bench.json"}
 }
 
 
