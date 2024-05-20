@@ -311,7 +311,7 @@ Observation:  import java.util.*;                                               
 Action: submit picoCTF{w4rm1ng_Up_w1tH_jAv4_be8d9806f18}
 """
 
-DEMO_MAP_REACT = {"SQL": DEMO_SQL_REACT, "BASH": DEMO_BASH_REACT}
+DEMO_MAP_REACT = {"SQL": DEMO_SQL_REACT, "BASH": DEMO_BASH_REACT, "CTF":DEMO_BASH_REACT}
 
 DEMO_SQL_PLAN = """Question: What are the names and grades for each high schooler?
 Plan:

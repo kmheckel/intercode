@@ -2,7 +2,7 @@ import argparse, json, os
 from intercode.envs import CTFEnv
 from intercode.utils import IntercodeDataLoader
 from tqdm import tqdm
-from typing import Dict
+from typing import Dict, List
 from experiments.policies import OllamaPolicy
 
 
@@ -13,6 +13,13 @@ parser.add_argument('--dialogue_limit', type=int, help='maximum number of turns 
 parser.add_argument('--log_dir', type=str, default=os.getcwd(), help="path to log directory")
 parser.add_argument('--verbose', action='store_true', help="print out logs")
 args = parser.parse_args()
+
+
+def preprocess_ctf(record: Dict) -> List:
+    cmds = [f"cd /ctf/{record['task_id']}"]
+    if "setup" in record:
+        cmds.append(record["setup"])
+    return cmds
 
 
 if __name__ == '__main__':
@@ -26,9 +33,10 @@ if __name__ == '__main__':
         for idx in tqdm(range(len(data))):
             task = data.get(idx)
             # Each task uses its own CTFEnv instance
-            env = CTFEnv(f"ctf_task_{idx}", task, traj_dir="logs/ctf/", verbose=True)
+            env = CTFEnv(f"intercode-ctf", traj_dir="logs/ctf/", data_path="./data/ctf/ic_ctf.json", preprocess=preprocess_ctf, verbose=True)
+            env.reset()
             policy = OllamaPolicy(language="ctf", setting="Bourne Shell",
-                template="ctf", dialogue_limit=args.dialogue_limit, model="gpt-4")
+                template="ctf", dialogue_limit=args.dialogue_limit, model="phi3")
             policy.reset()
             turn_history = {"actions": [], "observations": [], "rewards": []}
             obs = env.observation

@@ -28,7 +28,7 @@ def chat_with_backoff(**kwargs):
     return client.chat.completions.create(**kwargs)
 
 
-# Define GPT-3.5+ chat function
+# Define ollama chat function
 def OllamaChat(messages, model="wrn", num_samples=1):
     response = chat_with_backoff(
         model=model,
@@ -45,5 +45,22 @@ def OllamaChat(messages, model="wrn", num_samples=1):
         candidates.append(pred.strip())
     return candidates
     
+def OllamaCompletion(messages, stop, model="wrn", num_samples=1):
+    response = completion_with_backoff(
+        model=model,
+        messages=messages,
+        temperature=0,
+        top_p=1,
+        max_tokens=512,
+        n=num_samples,
+        stop=stop
+    )
+    candidates = []
+    for candidate in response.choices:
+        z = candidate.message.content
+        pred = re.sub("\n"," ", z)
+        candidates.append(pred.strip())
+    return candidates
+
 if __name__ == "__main__":
     pass

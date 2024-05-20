@@ -89,7 +89,7 @@ ACTION_PARSER_MAP = {
     "python": python_parser,
     "ctf": ctf_parser
 }
-ACTION_PARSER_MAP_REACT = {"sql": sql_parser_react, "bash": bash_parser_react}
+ACTION_PARSER_MAP_REACT = {"sql": sql_parser_react, "bash": bash_parser_react, "ctf":bash_parser_react}
 
 # MARK: Handicaps
 
